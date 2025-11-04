@@ -1,16 +1,7 @@
-# mastermind
+# Mastermind
+Un must da scrivere per ogni linguaggio nuovo che abbiamo imparato a scuola
+By Guido e nessun'altro
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 🌟 Scelte progettuali principali
+- **Separation of concerns**: è stata creata una classe apposita (Game) che consente di separare la logica di business dell'applicazione con l'intefaccia grafica
+- **Event listener**: per gestire la renderizzazione automatica dei widget, oltre agli StatefulWidget, la classe Game è stata resa anche un notifier che avvisa gli "ascoltatori" quando l'utente ha inserito una nuova sequenza che deve essere renderizzata
