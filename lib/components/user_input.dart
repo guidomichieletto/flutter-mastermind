@@ -26,6 +26,35 @@ class _UserInputState extends State<UserInput> {
         .toList();
 
     widget.game.addAttempt(attempt);
+
+    var status = widget.game.gameStatus();
+
+    if (status == 0) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(status == 1 ? 'You won!' : 'You lost!'),
+        content: Text(
+          status == 1
+              ? 'You won!'
+              : 'You ran out of attempts'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      )
+    ).then((_) {
+      // Reset the game after the dialog is dismissed
+      setState(() {
+        widget.game.reset();
+      });
+    });
   }
 
   @override

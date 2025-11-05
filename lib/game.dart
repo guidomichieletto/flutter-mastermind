@@ -75,4 +75,10 @@ class Game extends ChangeNotifier {
 
     return 0; // ongoing
   }
+
+  void reset() {
+    _generateSecret();
+    attempts = [];
+    notifyListeners();
+  }
 }
