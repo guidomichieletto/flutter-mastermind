@@ -15,6 +15,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Game game = Game();
+  // Track last shown game status so we only show the end-game dialog once per result
+  int _lastStatus = 0;
 
   void _resetGame() {
     setState(() {
@@ -49,17 +51,52 @@ class _HomePageState extends State<HomePage> {
             AnimatedBuilder(
               animation: game,
               builder: (context, _) {
+                final status = game.gameStatus();
+                // If the game just transitioned to a terminal state, show a dialog once
+                if (status != 0 && status != _lastStatus) {
+                  _lastStatus = status;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final title = status == 1 ? 'You won!' : 'You lost!';
+                    final content = status == 1
+                        ? 'You won!'
+                        : 'You ran out of attempts. The code was: ' +
+                            game.secret.map((c) => _colorName(c)).join(', ');
+
+                    showDialog<void>(
+                      context: context,
+                      barrierDismissible: true,
+                      builder: (context) => AlertDialog(
+                        title: Text(title),
+                        content: Text(content),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    ).then((_) {
+                      // Reset the game when the dialog is closed in any way
+                      _resetGame();
+                      // also reset _lastStatus so the next game can show dialogs again
+                      _lastStatus = 0;
+                    });
+                  });
+                }
                 return Column(
                   children: [
-                    if(game.gameStatus() == 1) Center(
-                      child: ConfettiWidget(
-                        numberOfParticles: 100,
-                        confettiController: ConfettiController(duration: const Duration(seconds: 4))..play(),
-                        blastDirectionality: BlastDirectionality.explosive,
-                        shouldLoop: false,
-                        colors: const [Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple],
+                    if(game.gameStatus() == 1)
+                      Center(
+                        child: ConfettiWidget(
+                          numberOfParticles: 100,
+                          confettiController: ConfettiController(duration: const Duration(seconds: 4))..play(),
+                          blastDirectionality: BlastDirectionality.explosive,
+                          shouldLoop: false,
+                          colors: const [Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple],
+                        ),
                       ),
-                    ),
                     for (int i = 0; i < game.attempts.length; i++)
                       AttemptRow(
                         colors: game.attempts[i],
@@ -78,5 +115,15 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.refresh),
       ),
     );
+  }
+
+  // Small helper to provide human-readable color names used by the secret reveal
+  String _colorName(Color color) {
+    if (color == Colors.red) return 'red';
+    if (color == Colors.green) return 'green';
+    if (color == Colors.blue) return 'blue';
+    if (color == Colors.yellow) return 'yellow';
+    if (color == Colors.orange) return 'orange';
+    return 'unknown';
   }
 }
